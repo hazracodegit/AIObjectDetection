@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Detect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="landing-page">
+    <nav class="site-nav">
+        <a class="brand" href="/">
+            <span><i class="fa-solid fa-hexagon-nodes"></i></span>
+            AI Detect
+        </a>
+        <ul>
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#workflow">How it Works</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/login">Contact</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <a href="/signup" class="btn btn-primary">Sign Up</a>
+        </div>
+    </nav>
+
+    <main class="hero-shell">
+        <section class="hero-copy">
+            <span class="eyebrow">AI POWERED</span>
+            <h1>Smart AI <span>Object</span> Detection Platform</h1>
+            <p>Upload images and detect objects instantly using advanced AI. Analyze results, track history, and get insights in a powerful dashboard.</p>
+            <div class="hero-actions">
+                <a href="/signup" class="btn btn-primary">Get Started</a>
+                <a href="/dashboard" class="btn btn-ghost">Learn More</a>
+            </div>
+        </section>
+
+        <section class="hero-visual" aria-label="Detection overview preview">
+            <div class="shape ring"></div>
+            <div class="shape cube"></div>
+            <div class="shape prism"></div>
+            <div class="shape sphere"></div>
+            <div class="preview-card">
+                <div class="preview-top">
+                    <div>
+                        <p>Detection Overview</p>
+                        <h2>2,450</h2>
+                        <span>+23.9% from last week</span>
+                    </div>
+                    <div class="mini-chart">
+                        <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    </div>
+                </div>
+                <div class="preview-grid">
+                    <div>
+                        <i class="fa-regular fa-images"></i>
+                        <p>Images Processed</p>
+                        <strong>1,245</strong>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-crosshairs"></i>
+                        <p>Objects Detected</p>
+                        <strong>3,782</strong>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <p>Accuracy</p>
+                        <strong>95.4%</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="feature-strip" id="features">
+        <article>
+            <i class="fa-solid fa-bolt"></i>
+            <h3>Real-time Detection</h3>
+            <p>Instant object detection with high accuracy.</p>
+        </article>
+        <article>
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <h3>Upload & Analyze</h3>
+            <p>Upload images and get AI predictions.</p>
+        </article>
+        <article>
+            <i class="fa-regular fa-clock"></i>
+            <h3>Detection History</h3>
+            <p>Track all your detections in one place.</p>
+        </article>
+        <article id="workflow">
+            <i class="fa-solid fa-chart-simple"></i>
+            <h3>Smart Analytics</h3>
+            <p>Visualize performance with powerful charts.</p>
+        </article>
+    </section>
+</body>
+</html>

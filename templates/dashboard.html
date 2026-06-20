@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Detect Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <a class="brand" href="/">
+            <span><i class="fa-solid fa-hexagon-nodes"></i></span>
+            AI Detect
+        </a>
+        <nav>
+            <a class="active" href="/dashboard"><i class="fa-solid fa-house"></i>Dashboard</a>
+            <a href="#upload"><i class="fa-regular fa-image"></i>Upload Image</a>
+            <a href="#recent"><i class="fa-solid fa-crosshairs"></i>Detections</a>
+            <a href="#recent"><i class="fa-regular fa-clock"></i>History</a>
+            <a href="#analytics"><i class="fa-solid fa-chart-line"></i>Analytics</a>
+            <a href="/signup"><i class="fa-regular fa-user"></i>Profile</a>
+            <a href="/login"><i class="fa-solid fa-gear"></i>Settings</a>
+        </nav>
+        <a class="logout" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+    </aside>
+
+    <main class="dashboard">
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back. Here's what's happening with your detections.</p>
+            </div>
+            <div class="user-actions">
+                <button aria-label="Notifications"><i class="fa-regular fa-bell"></i></button>
+                <div class="avatar">{{ initials }}</div>
+                <strong>{{ username }}</strong>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <article class="stat-card">
+                <span class="icon purple"><i class="fa-regular fa-images"></i></span>
+                <div>
+                    <p>Total Uploads</p>
+                    <h2>{{ total_uploads }}</h2>
+                    <small>+18.2% from last month</small>
+                </div>
+            </article>
+            <article class="stat-card">
+                <span class="icon violet"><i class="fa-solid fa-crosshairs"></i></span>
+                <div>
+                    <p>Total Detections</p>
+                    <h2>{{ total_detections }}</h2>
+                    <small>+24.6% from last month</small>
+                </div>
+            </article>
+            <article class="stat-card">
+                <span class="icon teal"><i class="fa-solid fa-shield-halved"></i></span>
+                <div>
+                    <p>Detection Accuracy</p>
+                    <h2>{{ accuracy }}%</h2>
+                    <small>+6.3% from last month</small>
+                </div>
+            </article>
+            <article class="stat-card">
+                <span class="icon magenta"><i class="fa-regular fa-user"></i></span>
+                <div>
+                    <p>Most Detected Object</p>
+                    <h2>{{ top_object }}</h2>
+                    <small>{{ top_percent }}% of total detections</small>
+                </div>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <article class="panel chart-panel" id="analytics">
+                <div class="panel-title">
+                    <h2>Detection Overview</h2>
+                    <div class="legend">
+                        <span><i class="dot purple-dot"></i>Detections</span>
+                        <span><i class="dot blue-dot"></i>Uploads</span>
+                    </div>
+                </div>
+                <canvas id="lineChart"></canvas>
+            </article>
+
+            <article class="panel recent-panel" id="recent">
+                <h2>Recent Detections</h2>
+                <div class="recent-list">
+                    {% if recent %}
+                        {% for item in recent %}
+                            <div class="recent-item">
+                                <img src="{{ url_for('uploaded_file', filename=item.image_name) }}" alt="{{ item.image_name }}">
+                                <div>
+                                    <strong>{{ item.image_name }}</strong>
+                                    <p>
+                                        {% for label in item.objects.split(',')[:3] %}
+                                            <span>{{ label.strip().title() }}</span>
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <small>{{ item.created_at[:16] }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">Upload an image to see detections here.</div>
+                    {% endif %}
+                </div>
+            </article>
+
+            <article class="panel object-panel">
+                <h2>Top Detected Objects</h2>
+                <div class="donut"></div>
+                <ul>
+                    {% if top_counts %}
+                        {% for name, count in top_counts %}
+                            <li><span>{{ name.title() }}</span><strong>{{ count }}</strong></li>
+                        {% endfor %}
+                    {% else %}
+                        <li><span>Person</span><strong>32%</strong></li>
+                        <li><span>Car</span><strong>18%</strong></li>
+                        <li><span>Dog</span><strong>12%</strong></li>
+                        <li><span>Other</span><strong>38%</strong></li>
+                    {% endif %}
+                </ul>
+            </article>
+
+            <article class="panel upload-panel" id="upload">
+                <h2>Upload New Image</h2>
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert">{{ messages[0] }}</div>
+                    {% endif %}
+                {% endwith %}
+                <form action="/detect" method="POST" enctype="multipart/form-data">
+                    <label class="dropzone">
+                        <input type="file" name="image" accept="image/*" required>
+                        <span><i class="fa-regular fa-folder-open"></i></span>
+                        <strong>Drag & drop an image here</strong>
+                        <small>or click to browse</small>
+                    </label>
+                    <button type="submit">Browse Image</button>
+                </form>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        const labels = {{ chart_labels | tojson }};
+        const detectionData = {{ chart_detections | tojson }};
+        const uploadData = {{ chart_uploads | tojson }};
+
+        new Chart(document.getElementById("lineChart"), {
+            type: "line",
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: "Detections",
+                        data: detectionData,
+                        borderColor: "#9d4edd",
+                        backgroundColor: "rgba(157, 78, 221, .16)",
+                        tension: .45,
+                        fill: true,
+                    },
+                    {
+                        label: "Uploads",
+                        data: uploadData,
+                        borderColor: "#228be6",
+                        backgroundColor: "rgba(34, 139, 230, .12)",
+                        tension: .45,
+                        fill: true,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: "rgba(255,255,255,.04)" }, ticks: { color: "#8d94b8" } },
+                    y: { grid: { color: "rgba(255,255,255,.05)" }, ticks: { color: "#8d94b8" } },
+                },
+            },
+        });
+    </script>
+</body>
+</html>

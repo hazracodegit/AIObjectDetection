@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - AI Detect</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}">
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="auth-shape shape-a"></div>
+    <div class="auth-shape shape-b"></div>
+    <div class="auth-card">
+        <a class="auth-logo" href="/">
+            <span><i class="fa-solid fa-hexagon-nodes"></i></span>
+            AI Detect
+        </a>
+        <h1>Create Account</h1>
+        <p>Create your AI Detect account</p>
+
+        {% if error %}
+            <div class="alert">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label class="input-group">
+                <i class="fa-regular fa-user"></i>
+                <input type="text" name="username" placeholder="Username" required>
+            </label>
+            <label class="input-group">
+                <i class="fa-regular fa-envelope"></i>
+                <input type="email" name="email" placeholder="Email address" required>
+            </label>
+            <label class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" placeholder="Password" required>
+            </label>
+            <label class="input-group">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" name="confirm_password" placeholder="Confirm password" required>
+            </label>
+            <button type="submit">Create Account</button>
+        </form>
+
+        <div class="auth-link">
+            Already have an account?
+            <a href="/login">Login</a>
+        </div>
+    </div>
+</body>
+</html>

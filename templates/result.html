@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Result - AI Detect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="result-body">
+    <main class="result-card">
+        <a class="brand" href="/">
+            <span><i class="fa-solid fa-hexagon-nodes"></i></span>
+            AI Detect
+        </a>
+        <div class="result-grid">
+            <img src="{{ url_for('uploaded_file', filename=image) }}" alt="{{ image }}">
+            <section>
+                <span class="eyebrow">Detection Result</span>
+                <h1>{{ image }}</h1>
+                <p>Average confidence: {{ confidence }}%</p>
+                <div class="tag-list">
+                    {% if objects %}
+                        {% for obj in objects %}
+                            <span>{{ obj.title() }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span>No objects detected</span>
+                    {% endif %}
+                </div>
+                <div class="result-actions">
+                    <a href="/dashboard" class="button primary">Back to Dashboard</a>
+                    <a href="#upload" class="button secondary" onclick="history.back()">Upload Another</a>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
