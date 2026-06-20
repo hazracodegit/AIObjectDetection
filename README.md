@@ -6,6 +6,7 @@ A full-stack AI-powered web application that performs **object detection using Y
 
 ## 🧠 Project Overview
 
+
 This project integrates:
 - 🔐 User authentication system (Login / Signup)
 - 📊 Dashboard for users
