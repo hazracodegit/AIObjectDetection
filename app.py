@@ -1,5 +1,7 @@
 import os
 os.environ["YOLO_CONFIG_DIR"] = "/tmp"
+import os
+os.environ["YOLO_CONFIG_DIR"] = "/tmp"
 
 import sqlite3
 from collections import Counter
@@ -48,9 +50,9 @@ def init_db():
             """
         )
         conn.execute("""
-    CREATE TABLE IF NOT EXISTS detections (
+        CREATE TABLE IF NOT EXISTS detections (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL,
     image_name TEXT NOT NULL,
     objects TEXT NOT NULL,
     object_count INTEGER NOT NULL DEFAULT 0,
@@ -162,17 +164,32 @@ def process_video(filepath):
 
 def dashboard_data():
     with get_db() as conn:
+       
         user_id = session.get("user_id")
 
+        if not user_id:
+            return {
+        "total_uploads": 0,
+        "total_detections": 0,
+        "accuracy": 0,
+        "top_object": "None",
+        "top_percent": 0,
+        "recent": [],
+        "top_counts": [],
+        "chart_labels": [],
+        "chart_uploads": [],
+        "chart_detections": [],
+    }
+
         rows = conn.execute(
-        """
-        SELECT image_name, objects, object_count, confidence, media_type, created_at
-        FROM detections
-        WHERE user_id = ?
-        ORDER BY created_at DESC
-        """,
-        (user_id,)
-    ).fetchall()
+    """
+    SELECT image_name, objects, object_count, confidence, media_type, created_at
+    FROM detections
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    """,
+    (user_id,)
+).fetchall()
 
     object_names = []
     for row in rows:
@@ -196,7 +213,7 @@ def dashboard_data():
         daily[day]["uploads"] += 1
         daily[day]["detections"] += row["object_count"] or 0
 
-    for day in sorted(daily)[-7:]:
+    for day in sorted(daily.keys())[-7:]:
         labels.append(datetime.strptime(day, "%Y-%m-%d").strftime("%b %d"))
         uploads.append(daily[day]["uploads"])
         detections.append(daily[day]["detections"])
@@ -295,6 +312,11 @@ def detect():
 
     with get_db() as conn:
         user_id = session.get("user_id")
+       
+
+        if not user_id:
+            flash("Please login first")
+            return redirect(url_for("login"))
         conn.execute(
             """
             INSERT INTO detections(user_id, image_name, objects, object_count, confidence, media_type)

@@ -1,0 +1,21 @@
+{
+  "settings_version": "0.0.6",
+  "datasets_dir": "C:\\Users\\Dudekulahazrabee\\OneDrive\\Documents\\AIObjectDetection\\datasets",
+  "weights_dir": "weights",
+  "runs_dir": "runs",
+  "uuid": "c6fde2bcfc4e0d889ef7ccbfded2f3c1ddecaa38433d70c50e3bdb00fe6654c7",
+  "sync": true,
+  "api_key": "",
+  "openai_api_key": "",
+  "clearml": true,
+  "comet": true,
+  "dvc": true,
+  "hub": true,
+  "mlflow": true,
+  "neptune": true,
+  "raytune": true,
+  "tensorboard": false,
+  "wandb": false,
+  "vscode_msg": true,
+  "openvino_msg": true
+}
