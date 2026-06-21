@@ -4,6 +4,42 @@ A full-stack AI-powered web application that performs object detection on images
 
 ---
 
+
+## 🌐 Live Deployment
+
+🚀 The project is successfully deployed on Render:
+
+👉 Live URL: https://your-app-name.onrender.com
+
+> (Replace this link with your actual Render deployment URL)
+
+---
+
+## ⚙️ Deployment Platform
+
+- Hosted on: Render
+- Backend: Flask (Python)
+- Model: YOLOv8
+- Database: SQLite
+
+---
+
+## 📌 How to Run Live Version
+
+1. Open the link above
+2. Sign up / login
+3. Upload image or video
+4. View detection results in real-time
+
+---
+
+## 🚀 Deployment Notes
+
+- Uses `gunicorn` for production server
+- Flask app hosted on Render Web Service
+- Static uploads handled locally
+- YOLOv8 model loaded at runtime
+
 ## 🚀 Features
 
 - 📷 Image Object Detection  
