@@ -9,7 +9,7 @@ A full-stack AI-powered web application that performs object detection on images
 
 🚀 The project is successfully deployed on Render:
 
-👉 Live URL: (https://aiobjectdetection-inwk.onrender.com)
+👉 Live URL: ((https://aiobjectdetection-1.onrender.com))
 
 
 
