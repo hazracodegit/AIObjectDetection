@@ -1,119 +1,118 @@
-# 🚀 AI Object Detection Web App (YOLOv8 + Flask + Auth System)
+# 🧠 AI Object Detection Web App (Image + Video)
 
-A full-stack AI-powered web application that performs **object detection using YOLOv8** with a complete **authentication system (Login/Signup)**, user dashboard, and results tracking system.
-
----
-
-## 🧠 Project Overview
-
-
-This project integrates:
-- 🔐 User authentication system (Login / Signup)
-- 📊 Dashboard for users
-- 🔍 AI object detection using YOLOv8
-- 📤 Image/video upload system
-- 📄 Results page for detections
-
-It is built using Flask and demonstrates a real-world AI + Web Development project.
+A full-stack AI-powered web application that performs object detection on images and videos using YOLOv8, built with Flask and analytics dashboard.
 
 ---
 
-## 📁 Project Structure
-pycache/
-instance/
-static/
-├── style.css
-├── script.js
+## 🚀 Features
 
-templates/
-├── login.html
-├── signup.html
-├── dashboard.html
-├── index.html
-├── results.html
-
-uploads/
-
-app.py
-check_db.py
-database.py
-database.db
-database.db-journal
-requirements.txt
-yolov8n.pt
-
-
----
-
-## ✨ Features
-
-### 🔐 Authentication System
-- User Signup
-- User Login
-- Session-based access control
-- Secure database storage (SQLite)
-
-### 📊 Dashboard
-- User-specific dashboard
-- Upload files for detection
-- View detection history
-
-### 🔍 AI Object Detection
-- YOLOv8-powered detection
-- Image & video processing
-- Bounding box visualization
-
-### 📄 Results Page
-- Displays detection output
-- Shows detected objects
-- Stores processed results
+- 📷 Image Object Detection  
+- 🎥 Video Object Detection  
+- 🧠 YOLOv8 integration  
+- 📊 Analytics Dashboard (Chart.js)  
+- 📁 Upload images & videos  
+- 🗂 Detection history (SQLite)  
+- 🔐 Login / Signup system  
+- ⚡ Optimized video processing  
+- 🎯 Confidence score tracking  
 
 ---
 
 ## 🛠️ Tech Stack
 
-**Frontend:**
-- HTML
-- CSS
-- JavaScript
-
-**Backend:**
-- Python
-- Flask
-
-**AI/ML:**
-- YOLOv8 (Ultralytics)
-- OpenCV
-
-**Database:**
-- SQLite
+**Backend:** Flask, Python, SQLite  
+**AI Model:** YOLOv8 (Ultralytics)  
+**Frontend:** HTML, CSS, JS, Chart.js  
+**Other:** OpenCV, Werkzeug  
 
 ---
 
-## 📦 Installation
+## 📁 Project Structure
 
-### 1. Clone repository
+AIObjectDetection/
+├── app.py
+├── yolov8n.pt
+├── database.py
+├── check_db.py
+├── requirements.txt
+│
+├── instance/
+│   └── ai_detect.sqlite
+│
+├── uploads/
+│   ├── images & videos
+│
+├── static/
+│   └── dashboard.css
+│
+├── templates/
+│   ├── index.html
+│   ├── login.html
+│   ├── signup.html
+│   ├── dashboard.html
+│   ├── result.html
+│
+└── README.md
+
+---
+
+## ⚙️ Installation
+
+### 1. Clone repo
 ```bash
-git clone https://github.com/your-username/ai-object-detection.git
-2. Move into project
-cd ai-object-detection
-3. Create virtual environment
+git clone https://github.com/hazracodegit/AIObjectDetection.git
+
+cd AIObjectDetection
+
+### 2. Create virtual environment
 python -m venv venv
-
-Activate it:
-
-Windows
 
 venv\Scripts\activate
 
-Mac/Linux
+### 3. Install Dependencies
 
-source venv/bin/activate
-4. Install dependencies
 pip install -r requirements.txt
-🚀 Run the Project
+
+### 4. Run the project
+
 python app.py
 
-Open browser:
+### 5. Open Browser
 
-http://127.0.0.1:5000
+http://127.0.0.1:5000/
+
+📷 How It Works
+Image Detection
+Upload image
+YOLO detects objects
+Results stored in database
+Video Detection
+Upload video
+Frame-by-frame processing
+YOLO runs on frames
+Results aggregated
+
+📊 Dashboard Features
+Total uploads
+Total detections
+Most detected object
+Confidence score
+Charts (daily analytics)
+Recent history
+
+
+🧠 AI Model
+YOLOv8 nano (yolov8n.pt)
+80 COCO classes
+Real-time detection support
+
+
+⚡ Performance Optimizations
+Frame skipping for video
+Reduced inference size (640)
+Limited frame processing
+Efficient DB queries
+
+🔐 Authentication
+Signup / Login system
+Session-based auth
