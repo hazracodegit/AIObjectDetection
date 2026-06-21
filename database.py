@@ -20,8 +20,9 @@ with sqlite3.connect(database_path) as conn:
     )
     conn.execute(
         """
-        CREATE TABLE IF NOT EXISTS detections (
+        CREATE TABLE detections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
             image_name TEXT NOT NULL,
             objects TEXT NOT NULL,
             object_count INTEGER NOT NULL DEFAULT 0,

@@ -47,19 +47,20 @@ def init_db():
             )
             """
         )
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS detections (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                image_name TEXT NOT NULL,
-                objects TEXT NOT NULL,
-                object_count INTEGER NOT NULL DEFAULT 0,
-                confidence REAL,
-                media_type TEXT NOT NULL DEFAULT 'image',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-            """
-        )
+        conn.execute("""
+    CREATE TABLE IF NOT EXISTS detections (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    image_name TEXT NOT NULL,
+    objects TEXT NOT NULL,
+    object_count INTEGER NOT NULL DEFAULT 0,
+    confidence REAL,
+    media_type TEXT NOT NULL DEFAULT 'image',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+""")
+            
+        
 
         columns = {row["name"] for row in conn.execute("PRAGMA table_info(detections)")}
         if "image_name" not in columns:
@@ -161,14 +162,17 @@ def process_video(filepath):
 
 def dashboard_data():
     with get_db() as conn:
+        user_id = session.get("user_id")
+
         rows = conn.execute(
-            """
-            SELECT image_name, objects, object_count, confidence, media_type, created_at
-            FROM detections
-            WHERE image_name IS NOT NULL AND image_name != ''
-            ORDER BY created_at DESC, id DESC
-            """
-        ).fetchall()
+        """
+        SELECT image_name, objects, object_count, confidence, media_type, created_at
+        FROM detections
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        """,
+        (user_id,)
+    ).fetchall()
 
     object_names = []
     for row in rows:
@@ -290,12 +294,13 @@ def detect():
     objects_text = ", ".join(detected_objects) if detected_objects else "No objects detected"
 
     with get_db() as conn:
+        user_id = session.get("user_id")
         conn.execute(
             """
-            INSERT INTO detections(image_name, objects, object_count, confidence, media_type)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO detections(user_id, image_name, objects, object_count, confidence, media_type)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (filename, objects_text, object_count, confidence, media_type),
+            (user_id, filename, objects_text, object_count, confidence, media_type),
         )
 
     return render_template(
