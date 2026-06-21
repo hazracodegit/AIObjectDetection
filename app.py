@@ -289,6 +289,7 @@ def signup():
     return render_template("signup.html", error=error)
 
 
+
 @app.route("/detect", methods=["POST"])
 def detect():
     media = request.files.get("media") or request.files.get("image")
@@ -341,8 +342,13 @@ def uploaded_file(filename):
 
 @app.route("/dashboard")
 def dashboard():
-    username = session.get("username", "Guest")
+    if "user_id" not in session:
+        flash("Please login first")
+        return redirect(url_for("login"))
+
+    username = session.get("username")
     initials = "".join(part[0] for part in username.split()[:2]).upper() or "G"
+
     return render_template(
         "dashboard.html",
         username=username,
