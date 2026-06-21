@@ -1,6 +1,6 @@
 # 🧠 AI Object Detection Web App (Image + Video)
 
-A full-stack AI-powered web application that performs object detection on images and videos using YOLOv8, built with Flask and analytics dashboard.
+A full-stack AI-powered web application that performs object detection on images and videos using YOLOv8, built with Flask and analytics dashboard built as a part of my CodeAlpha internship.
 
 ---
 
