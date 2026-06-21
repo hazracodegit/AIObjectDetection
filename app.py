@@ -1,4 +1,6 @@
 import os
+os.environ["YOLO_CONFIG_DIR"] = "/tmp"
+
 import sqlite3
 from collections import Counter
 from datetime import datetime
