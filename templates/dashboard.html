@@ -137,12 +137,12 @@
                 {% endwith %}
                 <form action="/detect" method="POST" enctype="multipart/form-data">
                     <label class="dropzone">
-                        <input type="file" name="image" accept="image/*" required>
+                        <input type="file" name="image" accept="image/*,video/*" required>
                         <span><i class="fa-regular fa-folder-open"></i></span>
-                        <strong>Drag & drop an image here</strong>
+                        <strong>Drag & drop an image/video here</strong>
                         <small>or click to browse</small>
                     </label>
-                    <button type="submit">Browse Image</button>
+                    <button type="submit">Browse Image/video</button>
                 </form>
             </article>
         </section>

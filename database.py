@@ -26,6 +26,7 @@ with sqlite3.connect(database_path) as conn:
             objects TEXT NOT NULL,
             object_count INTEGER NOT NULL DEFAULT 0,
             confidence REAL,
+            media_type TEXT NOT NULL DEFAULT 'image',
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         """

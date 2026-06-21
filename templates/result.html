@@ -14,10 +14,17 @@
             AI Detect
         </a>
         <div class="result-grid">
-            <img src="{{ url_for('uploaded_file', filename=image) }}" alt="{{ image }}">
+            {% if media_type == "video" %}
+    <video width="100%" controls>
+        <source src="{{ url_for('uploaded_file', filename=media) }}" type="video/mp4">
+        Your browser does not support video playback.
+    </video>
+{% else %}
+    <img src="{{ url_for('uploaded_file', filename=media) }}" alt="{{ media }}">
+{% endif %}
             <section>
                 <span class="eyebrow">Detection Result</span>
-                <h1>{{ image }}</h1>
+                <h1>{{ media }}</h1>
                 <p>Average confidence: {{ confidence }}%</p>
                 <div class="tag-list">
                     {% if objects %}

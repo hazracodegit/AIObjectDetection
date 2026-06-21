@@ -11,7 +11,10 @@ from werkzeug.utils import secure_filename
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DATABASE = os.path.join(BASE_DIR, "instance", "ai_detect.sqlite")
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"}
+IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "bmp"}
+VIDEO_EXTENSIONS = {"mp4", "avi", "mov", "mkv", "webm"}
+ALLOWED_EXTENSIONS = IMAGE_EXTENSIONS | VIDEO_EXTENSIONS
+MAX_VIDEO_FRAMES = 120
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
@@ -50,6 +53,7 @@ def init_db():
                 objects TEXT NOT NULL,
                 object_count INTEGER NOT NULL DEFAULT 0,
                 confidence REAL,
+                media_type TEXT NOT NULL DEFAULT 'image',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
             """
@@ -66,17 +70,98 @@ def init_db():
             conn.execute("ALTER TABLE detections ADD COLUMN created_at DATETIME")
         if "confidence" not in columns:
             conn.execute("ALTER TABLE detections ADD COLUMN confidence REAL")
+        if "media_type" not in columns:
+            conn.execute("ALTER TABLE detections ADD COLUMN media_type TEXT NOT NULL DEFAULT 'image'")
 
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def media_type_for(filename):
+    extension = filename.rsplit(".", 1)[1].lower()
+    return "video" if extension in VIDEO_EXTENSIONS else "image"
+
+
+def detect_media(filepath, media_type):
+    detected = []
+    confidences = []
+
+    if media_type == "video":
+        results = model.predict(filepath, stream=True, vid_stride=1, verbose=False)
+
+        for frame_number, result in enumerate(results):
+            if frame_number > MAX_VIDEO_FRAMES:
+                break
+
+        for box in result.boxes:
+            class_id = int(box.cls[0])
+            detected.append(model.names[class_id])
+            confidences.append(float(box.conf[0]) * 100)
+    else:
+        results = model(filepath, verbose=False)
+        for result in results:
+            for box in result.boxes:
+                class_id = int(box.cls[0])
+                detected.append(model.names[class_id])
+                confidences.append(float(box.conf[0]) * 100)
+
+    detected_objects = sorted(set(detected))
+    confidence = round(sum(confidences) / len(confidences), 1) if confidences else 0
+    return detected_objects, len(detected), confidence
+
+
+
+
+import cv2
+
+def process_video(filepath):
+    cap = cv2.VideoCapture(filepath)
+
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    output_path = filepath.rsplit(".", 1)[0] + "_output.mp4"
+
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+    detected = []
+    confidences = []
+    frame_count = 0
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret or frame_count > MAX_VIDEO_FRAMES:
+            break
+
+        results = model(frame)
+
+        for box in results[0].boxes:
+            class_id = int(box.cls[0])
+            detected.append(model.names[class_id])
+            confidences.append(float(box.conf[0]) * 100)
+
+        annotated = results[0].plot()
+        out.write(annotated)
+
+        frame_count += 1
+
+    cap.release()
+    out.release()
+
+    detected_objects = sorted(set(detected))
+    confidence = round(sum(confidences) / len(confidences), 1) if confidences else 0
+
+    return output_path, detected_objects, len(detected), confidence
+
+
 def dashboard_data():
     with get_db() as conn:
         rows = conn.execute(
             """
-            SELECT image_name, objects, object_count, confidence, created_at
+            SELECT image_name, objects, object_count, confidence, media_type, created_at
             FROM detections
             WHERE image_name IS NOT NULL AND image_name != ''
             ORDER BY created_at DESC, id DESC
@@ -121,7 +206,7 @@ def dashboard_data():
         "accuracy": avg_confidence,
         "top_object": top_object.title(),
         "top_percent": round((top_count / total_detections) * 100) if total_detections else 32,
-        "recent": rows[:4],
+        "recent": rows[:200],
         "top_counts": counts.most_common(4),
         "chart_labels": labels,
         "chart_uploads": uploads,
@@ -183,43 +268,38 @@ def signup():
 
 @app.route("/detect", methods=["POST"])
 def detect():
-    image = request.files.get("image")
-    if not image or image.filename == "":
-        flash("Choose an image first.")
+    media = request.files.get("media") or request.files.get("image")
+    if not media or media.filename == "":
+        flash("Choose an image or video first.")
         return redirect(url_for("dashboard"))
-    if not allowed_file(image.filename):
-        flash("Please upload a PNG, JPG, JPEG, WEBP, or BMP image.")
+    if not allowed_file(media.filename):
+        flash("Please upload an image or video file.")
         return redirect(url_for("dashboard"))
 
-    filename = secure_filename(image.filename)
+    filename = secure_filename(media.filename)
+    media_type = media_type_for(filename)
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-    image.save(filepath)
+    media.save(filepath)
 
-    results = model(filepath)
-    detected = []
-    confidences = []
-    for result in results:
-        for box in result.boxes:
-            class_id = int(box.cls[0])
-            detected.append(model.names[class_id])
-            confidences.append(float(box.conf[0]) * 100)
-
-    detected_objects = sorted(set(detected))
+    if media_type == "video":
+        filepath, detected_objects, object_count, confidence = process_video(filepath)
+    else:
+        detected_objects, object_count, confidence = detect_media(filepath, media_type)
     objects_text = ", ".join(detected_objects) if detected_objects else "No objects detected"
-    confidence = round(sum(confidences) / len(confidences), 1) if confidences else 0
 
     with get_db() as conn:
         conn.execute(
             """
-            INSERT INTO detections(image_name, objects, object_count, confidence)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO detections(image_name, objects, object_count, confidence, media_type)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (filename, objects_text, len(detected), confidence),
+            (filename, objects_text, object_count, confidence, media_type),
         )
 
     return render_template(
         "result.html",
-        image=filename,
+        media=filename,
+        media_type=media_type,
         objects=detected_objects,
         confidence=confidence,
     )
